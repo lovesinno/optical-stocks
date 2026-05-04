@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>光通訊美股深度分析 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0c10;
+  --bg2: #111318;
+  --bg3: #181c24;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.14);
+  --text: #e8eaf0;
+  --muted: #7a8090;
+  --accent-blue: #3b82f6;
+  --accent-teal: #14b8a6;
+  --accent-amber: #f59e0b;
+  --accent-purple: #8b5cf6;
+  --accent-green: #22c55e;
+  --accent-red: #ef4444;
+  --accent-coral: #f97316;
+  --radius: 10px;
+  --radius-lg: 16px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6;font-size:14px}
+a{color:inherit;text-decoration:none}
+
+/* ─── Header ─── */
+.header{padding:40px 24px 32px;max-width:1100px;margin:0 auto;border-bottom:1px solid var(--border)}
+.header-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.header-title{font-family:'Space Mono',monospace;font-size:clamp(20px,3vw,28px);font-weight:700;letter-spacing:-.02em;color:#fff;line-height:1.2}
+.header-title span{color:var(--accent-teal)}
+.header-sub{font-size:12px;color:var(--muted);margin-top:8px;letter-spacing:.04em}
+.header-badge{font-size:11px;padding:4px 12px;border-radius:99px;border:1px solid var(--border2);color:var(--muted);font-family:'Space Mono',monospace;white-space:nowrap}
+
+/* ─── Nav tabs ─── */
+.nav{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--border);padding:0 24px}
+.nav-inner{display:flex;gap:0;max-width:1100px;margin:0 auto;overflow-x:auto}
+.nav-tab{padding:14px 20px;font-size:13px;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .2s;user-select:none}
+.nav-tab:hover{color:var(--text)}
+.nav-tab.on{color:var(--accent-teal);border-bottom-color:var(--accent-teal)}
+
+/* ─── Sections ─── */
+.section{display:none;max-width:1100px;margin:0 auto;padding:32px 24px}
+.section.on{display:block}
+.sec-title{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:20px}
+
+/* ─── Grid ─── */
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+
+/* ─── Stock card ─── */
+.scard{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;cursor:pointer;transition:all .25s;position:relative;overflow:hidden}
+.scard::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .25s;pointer-events:none}
+.scard:hover{border-color:var(--border2);transform:translateY(-2px)}
+.scard:hover::before{opacity:1}
+.scard.blue::before{background:linear-gradient(135deg,rgba(59,130,246,.06),transparent)}
+.scard.teal::before{background:linear-gradient(135deg,rgba(20,184,166,.06),transparent)}
+.scard.purple::before{background:linear-gradient(135deg,rgba(139,92,246,.06),transparent)}
+.scard.amber::before{background:linear-gradient(135deg,rgba(245,158,11,.06),transparent)}
+.scard.green::before{background:linear-gradient(135deg,rgba(34,197,94,.06),transparent)}
+.scard.coral::before{background:linear-gradient(135deg,rgba(249,115,22,.06),transparent)}
+.card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.ticker{font-family:'Space Mono',monospace;font-size:22px;font-weight:700;color:#fff}
+.rating{font-size:10px;padding:3px 10px;border-radius:99px;font-weight:500;letter-spacing:.03em}
+.r-strong{background:rgba(20,184,166,.15);color:var(--accent-teal);border:1px solid rgba(20,184,166,.3)}
+.r-buy{background:rgba(59,130,246,.15);color:var(--accent-blue);border:1px solid rgba(59,130,246,.3)}
+.r-hold{background:rgba(245,158,11,.15);color:var(--accent-amber);border:1px solid rgba(245,158,11,.3)}
+.r-spec{background:rgba(249,115,22,.15);color:var(--accent-coral);border:1px solid rgba(249,115,22,.3)}
+.company{font-size:11px;color:var(--muted);margin-bottom:10px}
+.tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px}
+.tag{font-size:10px;padding:2px 8px;border-radius:4px;background:rgba(255,255,255,.05);color:var(--muted);border:1px solid var(--border)}
+.stat-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.stat{background:rgba(255,255,255,.03);border-radius:8px;padding:8px 10px}
+.stat-label{font-size:10px;color:var(--muted);margin-bottom:2px}
+.stat-val{font-size:14px;font-weight:500;color:#fff}
+.bar-row{margin-bottom:6px}
+.bar-label{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:3px}
+.bar-track{background:rgba(255,255,255,.06);border-radius:3px;height:5px}
+.bar-fill{height:5px;border-radius:3px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+.desc{font-size:12px;color:var(--muted);line-height:1.7;margin-top:10px}
+
+/* ─── Supply chain ─── */
+.chain{display:flex;flex-direction:column;gap:10px}
+.chain-layer{border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px}
+.chain-label{font-size:10px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px;font-family:'Space Mono',monospace}
+.chip-row{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:10px 16px;border-radius:var(--radius);cursor:pointer;border:1px solid transparent;transition:all .2s}
+.chip:hover,.chip.on{border-color:var(--border2);transform:scale(1.03)}
+.chip-ticker{font-family:'Space Mono',monospace;font-size:14px;font-weight:700;color:#fff}
+.chip-role{font-size:10px;margin-top:2px}
+.detail-box{border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;margin-top:12px;min-height:120px;background:var(--bg2)}
+.detail-head{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.detail-ticker{font-family:'Space Mono',monospace;font-size:24px;font-weight:700;color:#fff}
+.detail-name{font-size:12px;color:var(--muted)}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.detail-cell{background:rgba(255,255,255,.03);border-radius:8px;padding:10px 12px}
+.detail-cell.full{grid-column:1/-1}
+.detail-cell-label{font-size:10px;color:var(--muted);margin-bottom:4px;letter-spacing:.04em;text-transform:uppercase}
+.detail-cell-val{font-size:12px;color:var(--text);line-height:1.6}
+.app-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+
+/* ─── Flow ─── */
+.flow-section{margin-bottom:24px}
+.flow-title{font-size:11px;color:var(--muted);font-family:'Space Mono',monospace;letter-spacing:.06em;margin-bottom:10px}
+.flow-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.flow-box{border-radius:var(--radius);padding:10px 14px;font-size:11px;text-align:center;flex:1;min-width:100px;line-height:1.5}
+.flow-box-sub{font-size:10px;opacity:.7;display:block;margin-top:2px}
+.flow-arrow{font-size:18px;color:var(--muted);flex-shrink:0;padding:0 2px}
+.flow-note{margin-top:16px;padding:14px;background:rgba(255,255,255,.03);border-radius:var(--radius);border-left:3px solid var(--accent-teal);font-size:12px;color:var(--muted);line-height:1.7}
+.flow-note strong{color:var(--text)}
+
+/* ─── Dist bars ─── */
+.dist-section{margin-bottom:24px}
+.dist-title{font-size:12px;font-weight:500;color:var(--text);margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.dist-row{display:flex;align-items:center;gap:10px;margin-bottom:7px}
+.dist-label{font-size:12px;color:var(--muted);width:55px;flex-shrink:0;font-family:'Space Mono',monospace;font-size:11px}
+.dist-bar{flex:1;background:rgba(255,255,255,.05);border-radius:3px;height:22px;position:relative;overflow:hidden}
+.dist-fill{height:100%;border-radius:3px;display:flex;align-items:center;padding:0 8px;transition:width 1s cubic-bezier(.4,0,.2,1)}
+.dist-pct{font-size:11px;font-weight:500;font-family:'Space Mono',monospace}
+.dist-note{font-size:10px;color:var(--muted);width:160px;flex-shrink:0}
+
+/* ─── Invest ─── */
+.score-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:24px}
+.score-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;text-align:center}
+.score-ticker{font-family:'Space Mono',monospace;font-size:14px;font-weight:700;color:#fff}
+.score-val{font-size:28px;font-weight:700;margin:6px 0;font-family:'Space Mono',monospace}
+.score-rec{font-size:10px;color:var(--muted)}
+.risk-section{margin-bottom:24px}
+.risk-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.risk-label{font-size:11px;color:var(--muted);width:55px;flex-shrink:0;font-family:'Space Mono',monospace}
+.risk-track{flex:1;background:rgba(255,255,255,.05);border-radius:3px;height:8px}
+.risk-fill{height:8px;border-radius:3px}
+.risk-text{font-size:10px;color:var(--muted);width:36px}
+.alloc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+.alloc-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px}
+.alloc-title{font-size:11px;font-weight:500;color:#fff;margin-bottom:6px}
+.alloc-pct{font-family:'Space Mono',monospace;font-size:20px;font-weight:700;margin-bottom:6px}
+.alloc-stocks{font-size:11px;color:var(--muted)}
+.catalyst-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.catalyst-box{background:var(--bg2);border-radius:var(--radius-lg);padding:16px;border:1px solid var(--border)}
+.catalyst-head{font-size:11px;font-weight:500;margin-bottom:8px}
+.catalyst-list{list-style:none;display:flex;flex-direction:column;gap:5px}
+.catalyst-list li{font-size:11px;color:var(--muted);padding-left:14px;position:relative;line-height:1.5}
+.catalyst-list li::before{content:'';position:absolute;left:0;top:7px;width:5px;height:5px;border-radius:50%}
+.catalyst-up li::before{background:var(--accent-teal)}
+.catalyst-dn li::before{background:var(--accent-red)}
+
+/* ─── Disclaimer ─── */
+.disclaimer{max-width:1100px;margin:0 auto;padding:16px 24px 40px;font-size:11px;color:var(--muted);border-top:1px solid var(--border);line-height:1.6}
+
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:2px}
+
+/* ─── Responsive ─── */
+@media(max-width:600px){
+  .score-grid{grid-template-columns:repeat(2,1fr)}
+  .alloc-grid{grid-template-columns:1fr}
+  .catalyst-grid{grid-template-columns:1fr}
+  .detail-grid{grid-template-columns:1fr}
+  .detail-cell.full{grid-column:1}
+  .dist-note{display:none}
+  .nav-tab{padding:12px 14px;font-size:12px}
+}
+
+/* ─── Animate bars on load ─── */
+.bar-fill,.dist-fill,.risk-fill{width:0}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div>
+      <div class="header-title">光通訊美股 <span>深度分析</span></div>
+      <div class="header-title" style="font-size:clamp(14px,2vw,18px);color:var(--muted);font-weight:400">LITE · CIEN · AAOI · MRVL · CRDO · ALAB · AVGO · COHR</div>
+      <div class="header-sub">供應鏈定位 · 應用差異 · 技術比較 · 投資評分 · 2026年5月</div>
+    </div>
+    <div class="header-badge">AI 基礎設施光超週期</div>
+  </div>
+</div>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="nav-tab on" onclick="showTab('overview')">個股概覽</div>
+    <div class="nav-tab" onclick="showTab('chain')">供應鏈定位</div>
+    <div class="nav-tab" onclick="showTab('flow')">資料流路徑</div>
+    <div class="nav-tab" onclick="showTab('tech')">技術比較</div>
+    <div class="nav-tab" onclick="showTab('dist')">應用場景分布</div>
+    <div class="nav-tab" onclick="showTab('invest')">投資評分</div>
+  </div>
+</nav>
+
+<!-- ═══════════ 個股概覽 ═══════════ -->
+<div id="overview" class="section on">
+  <div class="sec-title">個股概覽 — 點選卡片深入閱讀</div>
+  <div class="grid-2">
+
+    <div class="scard teal" onclick="scrollToStock('LITE')">
+      <div class="card-header"><span class="ticker">LITE</span><span class="rating r-strong">強力買進</span></div>
+      <div class="company">Lumentum Holdings</div>
+      <div class="tags"><span class="tag">EML雷射晶片</span><span class="tag">矽光子</span><span class="tag">1.6T先驅</span></div>
+      <div class="stat-row">
+        <div class="stat"><div class="stat-label">FY26 營收成長</div><div class="stat-val" style="color:var(--accent-teal)">+77%</div></div>
+        <div class="stat"><div class="stat-label">主要客戶</div><div class="stat-val" style="font-size:12px">NVIDIA / AWS</div></div>
+      </div>
+      <div class="bar-row"><div class="bar-label"><span>技術護城河</span><span>95%</span></div><div class="bar-track"><div class="bar-fill" style="background:var(--accent-teal)" data-w="95"></div></div></div>
+      <div class="bar-row"><div class="bar-label"><span>成長動能</span><span>92%</span></div><div class="bar-track"><div class="bar-fill" style="background:var(--accent-blue)" data-w="92"></div></div></div>
+      <div class="desc">唯一量產 200G/lane EML 的供應商，是下世代 1.6T 光模組的核心元件。NVIDIA 宣布 40 億美元投資，CEO 稱 2026 為「雷射晶片爆發年」。</div>
+    </div>
+
+    <div class="scard blue" onclick="scrollToStock('COHR')">
+      <div class="card-header"><span class="ticker">COHR</span><span class="rating r-strong">強力買進</span></div>
+      <div class="company">Coherent Corp</div>
+      <div class="tags"><span class="tag">垂直整合</span><span class="tag">CPO共封裝</span><span class="tag">矽光子</span></div>
+      <div class="stat-row">
+        <div class="stat"><div class="stat-label">FY25 營收</div><div class="stat-val" style="color:var(--accent-blue)">$5.81B</div></div>
+        <div class="stat"><div class="stat-label">市占率</div><div class="stat-val">~25%</div></div>
+      </div>
+      <div class="bar-row"><div class="bar-label"><span>技術護城河</span><span>90%</span></div><div class="bar-track"><div class="bar-fill" style="background:var(--accent-blue)" data-w="90"></div></div></div>
+      <div class="bar-row"><div class="bar-label"><span>成長動能</span><span>85%</span></div><div class="bar-track"><div class="bar-fill" style="background:var(--accent-teal)" data-w="85"></div></div></div>
+      <div class="desc">光電元件龍頭，資料中心訂單出貨比超過 4:1。與 NVIDIA 深度合作 CPO 技術並獲策略投資，Spectrum-X 平台核心受益者。</div>
+    </div>
+
+    <div class="scard purple" onclick="scrollToStock('AVGO')">
+      <div class="card-header"><span class="ticker">AVGO</span><span class="rating r-strong">強力買進</span></div>
+      <div class="company">Broadcom Inc.</div>
+      <div class="tags"><span class="tag">自訂ASIC/XPU</span><span class="tag">CPO領導者</span><span class="tag">AI基礎設施</span></div>
+      <div class="stat-row">
+        <div class="stat"><div class="stat-label">Q1 FY26 AI營收</div><div class="stat-val" style="color:var(--accent-purple)">$8.4B</div></div>
+        <div class="stat"><div class="stat-label">ASIC市占</div><div class="stat-val">~55–60%</div></div>
+      </div>
+      <div class="bar-row"><div class="bar-label"><span>技術護城河</span><span>98%</span></div><div class="bar-track"><div class="bar-fill" style="background:var(--accent-purple)" data-w="98"></div></div></div>
+      <div class="bar-row"><div class="bar-label"><span>成長動能</span><span>88%</span></div><div class="bar-track"><div class="bar-fill" style="background:var(--accent-blue)" data-w="88"></div></div></div>
+      <div class="desc">Google TPU 合約鎖定至 2031，客戶含 Meta/OpenAI/ByteDance，AI 訂單積壓達 730 億美元。CPO 技術最積極的倡導者。</div>
+    </div>
+
+    <div class="scard purple" onclick="scrollToStock('MRVL')">
+      <div class="card-header"><span class="ticker">MRVL</span><span class="rating r-buy">積極買進</span></div>
+      <div class="company">Marvell Technology</div>
+      <div class="tags"><span class="tag">PAM4 DSP龍頭</span><span class="tag">自訂XPU</span><span class="tag">矽光子</span></div>
+      <div class="stat-row">
+        <div class="stat"><div class="stat-label">資料中心佔比</div><div class="stat-val" style="color:var(--accent-purple)">&gt;73%</div></div>
+        <div class="stat"><div class="stat-label">NVIDIA投資</div><div class="stat-val">$2B</div></div>
+      </div>
+      <div class="bar-row"><div class="bar-label"><span>技術護城河</span><span>93%</span></div><div class="bar-track"><div class="bar-fill" style="background:var(--accent-purple)" data-w="93"></div></div></div>
+      <div class="bar-row"><div class="bar-label"><span>成長動能</span><span>90%</span></div><div class="bar-track"><div class="bar-fill" style="background:var(--accent-blue)" data-w="90"></div></div></div>
+      <div class="desc">光互連 PAM4 DSP 無可爭議的龍頭，1.6T DSP 已進入量產。客戶含 Amazon Trainium、Microsoft Maia，NVIDIA 20 億美元投資強化矽光子路線。</div>
+    </div>
+
+    <div class="scard blue" onclick="scrollToStock('CRDO')">
+      <div class="card-header"><span class="ticker">CRDO</span><span class="rating r-buy">積極買進</span></div>
+      <div class="company">Credo Technology</div>
+      <div class="tags"><span class="tag">AEC主動電纜</span><span class="tag">Retimer</span><span class="tag">光DSP</span></div>
+      <div class="stat-row">
+        <div class="stat"><div class="stat-label">Q3 FY26 營收</div><div class="stat-val" style="color:var(--accent-blue)">$407M</div></div>
+        <div class="stat"><div class="stat-label">YoY 成長</div><div class="stat-val">+201%</div></div>
+      </div>
+      <div class="bar-row"><div class="bar-label"><span>技術護城河</span><span>78%</span></div><div class="bar-track"><div class="bar-fill" style="background:var(--accent-blue)" data-w="78"></div></div></div>
+      <div class="bar-row"><div class="bar-label"><span>成長動能</span><span>95%</span></div><div class="bar-track"><div class="bar-fill" style="background:var(--accent-teal)" data-w="95"></div></div></div>
+      <div class="desc">AEC 零故障主動電纜為機架間互連事實標準，可靠性高 1000 倍、功耗低 50%。已擴展至 5 個超大規模雲端客戶，Bluebird 光 DSP 獲強烈市場反響。</div>
+    </div>
+
+    <div class="scard blue" onclick="scrollToStock('ALAB')">
+      <div class="card-header"><span class="ticker">ALAB</span><span class="rating r-buy">積極買進</span></div>
+      <div class="company">Astera Labs</div>
+      <div class="tags"><span class="tag">PCIe/CXL連結</span><span class="tag">智慧型連結IC</span><span class="tag">AI伺服器</span></div>
+      <div class="stat-row">
+        <div class="stat"><div class="stat-label">P/S 估值</div><div class="stat-val" style="color:var(--accent-amber)">20x</div></div>
+        <div class="stat"><div class="stat-label">前5大客戶佔比</div><div class="stat-val">84%</div></div>
+      </div>
+      <div class="bar-row"><div class="bar-label"><span>技術護城河</span><span>75%</span></div><div class="bar-track"><div class="bar-fill" style="background:var(--accent-blue)" data-w="75"></div></div></div>
+      <div class="bar-row"><div class="bar-label"><span>成長動能</span><span>82%</span></div><div class="bar-track"><div class="bar-fill" style="background:var(--accent-teal)" data-w="82"></div></div></div>
+      <div class="desc">PCIe 與 CXL 記憶體擴展互連 IC 新興龍頭，深耕 AI 伺服器內部高速連結。Oracle/Broadcom 強勁業績帶動受益，但估值偏貴且客戶集中風險較高。</div>
+    </div>
+
+    <div class="scard amber" onclick="scrollToStock('CIEN')">
+      <div class="card-header"><span class="ticker">CIEN</span><span class="rating r-buy">買進</span></div>
+      <div class="company">Ciena Corporation</div>
+      <div class="tags"><span class="tag">WaveLogic 6</span><span class="tag">長距骨幹傳輸</span><span class="tag">電信+雲端</span></div>
+      <div class="stat-row">
+        <div class="stat"><div class="stat-label">Q1 FY26 積壓</div><div class="stat-val" style="color:var(--accent-amber)">~$7B</div></div>
+        <div class="stat"><div class="stat-label">積壓成長</div><div class="stat-val">+45%</div></div>
+      </div>
+      <div class="bar-row"><div class="bar-label"><span>技術護城河</span><span>82%</span></div><div class="bar-track"><div class="bar-fill" style="background:var(--accent-amber)" data-w="82"></div></div></div>
+      <div class="bar-row"><div class="bar-label"><span>成長動能</span><span>70%</span></div><div class="bar-track"><div class="bar-fill" style="background:var(--accent-blue)" data-w="70"></div></div></div>
+      <div class="desc">高速長距光傳輸設備龍頭，WaveLogic 6 為業界最高頻譜效率。2025 年收購 Nubis 拓展短距資料中心光學，超大規模客戶訂單激增帶動積壓飆升。</div>
+    </div>
+
+    <div class="scard coral" onclick="scrollToStock('AAOI')">
+      <div class="card-header"><span class="ticker">AAOI</span><span class="rating r-spec">投機買進</span></div>
+      <div class="company">Applied Optoelectronics</div>
+      <div class="tags"><span class="tag">1.6T光模組</span><span class="tag">LPO低功耗</span><span class="tag">垂直整合</span></div>
+      <div class="stat-row">
+        <div class="stat"><div class="stat-label">2026目標營收</div><div class="stat-val" style="color:var(--accent-coral)">&gt;$1B</div></div>
+        <div class="stat"><div class="stat-label">YTD漲幅</div><div class="stat-val">+173%</div></div>
+      </div>
+      <div class="bar-row"><div class="bar-label"><span>技術護城河</span><span>55%</span></div><div class="bar-track"><div class="bar-fill" style="background:var(--accent-coral)" data-w="55"></div></div></div>
+      <div class="bar-row"><div class="bar-label"><span>成長動能</span><span>97%</span></div><div class="bar-track"><div class="bar-fill" style="background:var(--accent-teal)" data-w="97"></div></div></div>
+      <div class="desc">深度綁定微軟，LPO 低功耗光學模組打入 800G→1.6T 轉換甜蜜點。Q4 2025 創歷史新高，多筆累積超 2 億美元大訂單確認，但財務體質較弱。</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════ 供應鏈定位 ═══════════ -->
+<div id="chain" class="section">
+  <div class="sec-title">供應鏈層級 — 點選公司查看詳細定位</div>
+  <div class="chain">
+
+    <div class="chain-layer" style="border-color:rgba(20,184,166,.25);background:rgba(20,184,166,.04)">
+      <div class="chain-label" style="color:var(--accent-teal)">層 1 · 光學元件 &amp; 雷射（最上游）</div>
+      <div class="chip-row">
+        <div class="chip" style="background:rgba(20,184,166,.1)" onclick="showDetail('LITE')">
+          <div class="chip-ticker">LITE</div><div class="chip-role" style="color:var(--accent-teal)">EML 雷射晶片</div>
+        </div>
+        <div class="chip" style="background:rgba(20,184,166,.1)" onclick="showDetail('COHR')">
+          <div class="chip-ticker">COHR</div><div class="chip-role" style="color:var(--accent-teal)">垂直整合光電</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chain-layer" style="border-color:rgba(139,92,246,.25);background:rgba(139,92,246,.04)">
+      <div class="chain-label" style="color:var(--accent-purple)">層 2 · 半導體 IC（算力 &amp; 訊號處理）</div>
+      <div class="chip-row">
+        <div class="chip" style="background:rgba(139,92,246,.1)" onclick="showDetail('AVGO')">
+          <div class="chip-ticker">AVGO</div><div class="chip-role" style="color:var(--accent-purple)">自訂 ASIC / XPU</div>
+        </div>
+        <div class="chip" style="background:rgba(139,92,246,.1)" onclick="showDetail('MRVL')">
+          <div class="chip-ticker">MRVL</div><div class="chip-role" style="color:var(--accent-purple)">PAM4 DSP / XPU</div>
+        </div>
+        <div class="chip" style="background:rgba(139,92,246,.1)" onclick="showDetail('CRDO')">
+          <div class="chip-ticker">CRDO</div><div class="chip-role" style="color:var(--accent-purple)">AEC / Retimer / 光DSP</div>
+        </div>
+        <div class="chip" style="background:rgba(139,92,246,.1)" onclick="showDetail('ALAB')">
+          <div class="chip-ticker">ALAB</div><div class="chip-role" style="color:var(--accent-purple)">PCIe / CXL 連結 IC</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chain-layer" style="border-color:rgba(59,130,246,.25);background:rgba(59,130,246,.04)">
+      <div class="chain-label" style="color:var(--accent-blue)">層 3 · 光模組整合（中游）</div>
+      <div class="chip-row">
+        <div class="chip" style="background:rgba(59,130,246,.1)" onclick="showDetail('AAOI')">
+          <div class="chip-ticker">AAOI</div><div class="chip-role" style="color:var(--accent-blue)">LPO 光模組垂直整合</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chain-layer" style="border-color:rgba(245,158,11,.25);background:rgba(245,158,11,.04)">
+      <div class="chain-label" style="color:var(--accent-amber)">層 4 · 系統 &amp; 設備（最下游）</div>
+      <div class="chip-row">
+        <div class="chip" style="background:rgba(245,158,11,.1)" onclick="showDetail('CIEN')">
+          <div class="chip-ticker">CIEN</div><div class="chip-role" style="color:var(--accent-amber)">WaveLogic 6 光傳輸系統</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="detail-box" id="detail-panel">
+    <div style="color:var(--muted);font-size:13px">點選上方公司查看詳細應用定位</div>
+  </div>
+</div>
+
+<!-- ═══════════ 資料流路徑 ═══════════ -->
+<div id="flow" class="section">
+  <div class="sec-title">AI 資料中心訊號傳輸路徑 — 各股在何處發力</div>
+
+  <div class="flow-section">
+    <div class="flow-title">GPU/XPU 晶片內部</div>
+    <div class="flow-row">
+      <div class="flow-box" style="background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.3);color:#c4b5fd">AVGO / MRVL<span class="flow-box-sub">自訂 XPU 晶片</span></div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-box" style="background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.3);color:#c4b5fd">ALAB<span class="flow-box-sub">PCIe / CXL 介面</span></div>
+    </div>
+  </div>
+
+  <div class="flow-section">
+    <div class="flow-title">伺服器 ↔ 伺服器（機架內，&lt;3m）</div>
+    <div class="flow-row">
+      <div class="flow-box" style="background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.3);color:#c4b5fd">CRDO<span class="flow-box-sub">AEC 主動電纜</span></div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-box" style="background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.3);color:#c4b5fd">MRVL<span class="flow-box-sub">Retimer / SerDes</span></div>
+    </div>
+  </div>
+
+  <div class="flow-section">
+    <div class="flow-title">機架 ↔ 機架（資料中心內，3–300m）</div>
+    <div class="flow-row">
+      <div class="flow-box" style="background:rgba(20,184,166,.1);border:1px solid rgba(20,184,166,.3);color:#5eead4">LITE / COHR<span class="flow-box-sub">EML / CW 雷射</span></div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-box" style="background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.3);color:#c4b5fd">MRVL / AVGO<span class="flow-box-sub">PAM4 DSP / 光IC</span></div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-box" style="background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.3);color:#93c5fd">AAOI<span class="flow-box-sub">光模組組裝</span></div>
+    </div>
+  </div>
+
+  <div class="flow-section">
+    <div class="flow-title">資料中心 ↔ 資料中心 / 都會骨幹（&gt;100km）</div>
+    <div class="flow-row">
+      <div class="flow-box" style="background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);color:#fcd34d">CIEN<span class="flow-box-sub">WaveLogic 6 長距系統</span></div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-box" style="background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);color:#fcd34d">電信商 / 雲端骨幹<span class="flow-box-sub">AT&amp;T · Verizon · 超大規模</span></div>
+    </div>
+  </div>
+
+  <div class="flow-section">
+    <div class="flow-title">次世代：共封裝光學 CPO（2027+）</div>
+    <div class="flow-row">
+      <div class="flow-box" style="background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.3);color:#c4b5fd">AVGO / MRVL<span class="flow-box-sub">CPO 交換晶片</span></div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-box" style="background:rgba(20,184,166,.1);border:1px solid rgba(20,184,166,.3);color:#5eead4">LITE / COHR<span class="flow-box-sub">矽光子雷射源</span></div>
+    </div>
+  </div>
+
+  <div class="flow-note">
+    <strong>關鍵差異：</strong>CRDO/ALAB 解決「電訊號」連結；LITE/COHR 解決「光訊號產生」；MRVL/AVGO 解決「電光轉換演算」；AAOI 整合成模組；CIEN 解決長距傳輸。<br>
+    彼此互補，非零和競爭。AI 資本支出擴大，八股可同時受惠。
+  </div>
+</div>
+
+<!-- ═══════════ 技術比較 ═══════════ -->
+<div id="tech" class="section">
+  <div class="sec-title">技術定位與競爭優劣分析</div>
+  <div style="overflow-x:auto">
+    <table style="width:100%;border-collapse:collapse;font-size:12px;min-width:700px">
+      <thead>
+        <tr style="border-bottom:1px solid var(--border)">
+          <th style="text-align:left;padding:10px 12px;color:var(--muted);font-weight:400;width:60px">股票</th>
+          <th style="text-align:left;padding:10px 12px;color:var(--muted);font-weight:400;width:100px">核心技術</th>
+          <th style="text-align:left;padding:10px 12px;color:var(--muted);font-weight:400">技術優勢</th>
+          <th style="text-align:left;padding:10px 12px;color:var(--muted);font-weight:400">主要風險</th>
+          <th style="text-align:left;padding:10px 12px;color:var(--muted);font-weight:400">主要客戶</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:12px;font-family:'Space Mono',monospace;color:#fff;font-weight:700">LITE</td>
+          <td style="padding:12px;color:var(--accent-teal)">EML雷射/矽光子</td>
+          <td style="padding:12px;color:var(--muted)">唯一量產200G/lane EML；1.6T瓶頸元件壟斷；CPO技術深度</td>
+          <td style="padding:12px;color:var(--muted)">產能擴張需時；AI資本支出週期依賴</td>
+          <td style="padding:12px;color:var(--muted)">NVIDIA、AWS、Meta</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:12px;font-family:'Space Mono',monospace;color:#fff;font-weight:700">COHR</td>
+          <td style="padding:12px;color:var(--accent-teal)">垂直整合光電</td>
+          <td style="padding:12px;color:var(--muted)">25%市占工業規模；材料→晶片→模組全棧；CW雷射核心地位</td>
+          <td style="padding:12px;color:var(--muted)">業務整合中；毛利率仍低於同業</td>
+          <td style="padding:12px;color:var(--muted)">NVIDIA(Spectrum-X)、Google、Meta</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:12px;font-family:'Space Mono',monospace;color:#fff;font-weight:700">AVGO</td>
+          <td style="padding:12px;color:var(--accent-purple)">自訂ASIC/XPU+CPO</td>
+          <td style="padding:12px;color:var(--muted)">ASIC市占55-60%；客戶鎖定性強；軟體現金流護城河</td>
+          <td style="padding:12px;color:var(--muted)">3大客戶高度集中；非AI業務成長慢</td>
+          <td style="padding:12px;color:var(--muted)">Google(TPU至2031)、Meta、OpenAI、ByteDance</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:12px;font-family:'Space Mono',monospace;color:#fff;font-weight:700">MRVL</td>
+          <td style="padding:12px;color:var(--accent-purple)">PAM4 DSP+XPU</td>
+          <td style="padding:12px;color:var(--muted)">DSP市場無可爭議龍頭；NVIDIA 20億背書；1.6T DSP量產中</td>
+          <td style="padding:12px;color:var(--muted)">Google TPU份額受AVGO分食；設計週期長</td>
+          <td style="padding:12px;color:var(--muted)">Amazon(Trainium)、Microsoft(Maia)、Google</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:12px;font-family:'Space Mono',monospace;color:#fff;font-weight:700">CRDO</td>
+          <td style="padding:12px;color:var(--accent-purple)">AEC+Retimer+光DSP</td>
+          <td style="padding:12px;color:var(--muted)">AEC零故障高可靠性；低功耗差異化；Bluebird光DSP技術新穎</td>
+          <td style="padding:12px;color:var(--muted)">CPO普及是長期威脅；前2大客戶佔87%</td>
+          <td style="padding:12px;color:var(--muted)">5大超大規模雲端（未具名）</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:12px;font-family:'Space Mono',monospace;color:#fff;font-weight:700">ALAB</td>
+          <td style="padding:12px;color:var(--accent-purple)">PCIe/CXL連結IC</td>
+          <td style="padding:12px;color:var(--muted)">AI伺服器內部連結新興龍頭；CXL技術先行者</td>
+          <td style="padding:12px;color:var(--muted)">前5大客戶佔84%；估值最貴(P/S 20x)</td>
+          <td style="padding:12px;color:var(--muted)">Oracle、超大規模雲端業者</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:12px;font-family:'Space Mono',monospace;color:#fff;font-weight:700">CIEN</td>
+          <td style="padding:12px;color:var(--accent-amber)">WaveLogic 6系統</td>
+          <td style="padding:12px;color:var(--muted)">最高頻譜效率；長距骨幹無可替代；積壓訂單保護下行</td>
+          <td style="padding:12px;color:var(--muted)">非超短距AI互連；週期性較強</td>
+          <td style="padding:12px;color:var(--muted)">AT&amp;T、Verizon、雲端超大規模</td>
+        </tr>
+        <tr>
+          <td style="padding:12px;font-family:'Space Mono',monospace;color:#fff;font-weight:700">AAOI</td>
+          <td style="padding:12px;color:var(--accent-coral)">LPO光模組</td>
+          <td style="padding:12px;color:var(--muted)">微軟深度綁定；LPO成本競爭力；800G→1.6T快速轉型</td>
+          <td style="padding:12px;color:var(--muted)">技術深度不及LITE/COHR；財務體質偏弱</td>
+          <td style="padding:12px;color:var(--muted)">Microsoft(主要)、超大規模雲端</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div style="margin-top:12px;font-size:11px;color:var(--muted);line-height:1.7">
+    * CPO=共封裝光學；LPO=線性可插拔光學；AEC=主動電纜；EML=電吸調製雷射；PAM4=四脈衝振幅調製；DSP=數字信號處理器
+  </div>
+</div>
+
+<!-- ═══════════ 應用場景分布 ═══════════ -->
+<div id="dist" class="section">
+  <div class="sec-title">各股應用場景營收比重估算</div>
+
+  <div class="dist-section">
+    <div class="dist-title">AI 資料中心互連</div>
+    <div class="dist-row"><div class="dist-label">AAOI</div><div class="dist-bar"><div class="dist-fill" style="background:rgba(59,130,246,.35)" data-w="90"><span class="dist-pct" style="color:#93c5fd">90%</span></div></div><div class="dist-note">1.6T / 800G 光模組</div></div>
+    <div class="dist-row"><div class="dist-label">CRDO</div><div class="dist-bar"><div class="dist-fill" style="background:rgba(59,130,246,.35)" data-w="85"><span class="dist-pct" style="color:#93c5fd">85%</span></div></div><div class="dist-note">AEC 機架互連</div></div>
+    <div class="dist-row"><div class="dist-label">LITE</div><div class="dist-bar"><div class="dist-fill" style="background:rgba(59,130,246,.35)" data-w="75"><span class="dist-pct" style="color:#93c5fd">75%</span></div></div><div class="dist-note">EML 雷射晶片</div></div>
+    <div class="dist-row"><div class="dist-label">ALAB</div><div class="dist-bar"><div class="dist-fill" style="background:rgba(59,130,246,.35)" data-w="80"><span class="dist-pct" style="color:#93c5fd">80%</span></div></div><div class="dist-note">PCIe / CXL 伺服器</div></div>
+    <div class="dist-row"><div class="dist-label">MRVL</div><div class="dist-bar"><div class="dist-fill" style="background:rgba(59,130,246,.35)" data-w="73"><span class="dist-pct" style="color:#93c5fd">73%</span></div></div><div class="dist-note">DSP + XPU 資料中心</div></div>
+    <div class="dist-row"><div class="dist-label">COHR</div><div class="dist-bar"><div class="dist-fill" style="background:rgba(59,130,246,.35)" data-w="60"><span class="dist-pct" style="color:#93c5fd">60%</span></div></div><div class="dist-note">光模組 + 雷射</div></div>
+    <div class="dist-row"><div class="dist-label">AVGO</div><div class="dist-bar"><div class="dist-fill" style="background:rgba(59,130,246,.35)" data-w="50"><span class="dist-pct" style="color:#93c5fd">50%</span></div></div><div class="dist-note">AI 半導體部門</div></div>
+    <div class="dist-row"><div class="dist-label">CIEN</div><div class="dist-bar"><div class="dist-fill" style="background:rgba(59,130,246,.35)" data-w="35"><span class="dist-pct" style="color:#93c5fd">35%</span></div></div><div class="dist-note">雲端 DCI 連結</div></div>
+  </div>
+
+  <div class="dist-section">
+    <div class="dist-title">電信骨幹 / 長距傳輸</div>
+    <div class="dist-row"><div class="dist-label">CIEN</div><div class="dist-bar"><div class="dist-fill" style="background:rgba(245,158,11,.3)" data-w="55"><span class="dist-pct" style="color:#fcd34d">55%</span></div></div><div class="dist-note">電信商長距骨幹</div></div>
+    <div class="dist-row"><div class="dist-label">COHR</div><div class="dist-bar"><div class="dist-fill" style="background:rgba(245,158,11,.3)" data-w="20"><span class="dist-pct" style="color:#fcd34d">20%</span></div></div><div class="dist-note">長距光模組</div></div>
+    <div class="dist-row"><div class="dist-label">LITE</div><div class="dist-bar"><div class="dist-fill" style="background:rgba(245,158,11,.3)" data-w="15"><span class="dist-pct" style="color:#fcd34d">15%</span></div></div><div class="dist-note">電信雷射元件</div></div>
+  </div>
+
+  <div class="dist-section">
+    <div class="dist-title">企業軟體 / 其他半導體</div>
+    <div class="dist-row"><div class="dist-label">AVGO</div><div class="dist-bar"><div class="dist-fill" style="background:rgba(34,197,94,.25)" data-w="45"><span class="dist-pct" style="color:#86efac">45%</span></div></div><div class="dist-note">VMware + 企業網路</div></div>
+    <div class="dist-row"><div class="dist-label">MRVL</div><div class="dist-bar"><div class="dist-fill" style="background:rgba(34,197,94,.25)" data-w="20"><span class="dist-pct" style="color:#86efac">20%</span></div></div><div class="dist-note">儲存 / 企業</div></div>
+  </div>
+</div>
+
+<!-- ═══════════ 投資評分 ═══════════ -->
+<div id="invest" class="section">
+  <div class="sec-title">投資綜合評分矩陣</div>
+
+  <div class="score-grid">
+    <div class="score-card" style="border-color:rgba(20,184,166,.3)">
+      <div class="score-ticker">LITE</div>
+      <div class="score-val" style="color:var(--accent-teal)">A+</div>
+      <div class="score-rec">強力買進</div>
+    </div>
+    <div class="score-card" style="border-color:rgba(139,92,246,.3)">
+      <div class="score-ticker">AVGO</div>
+      <div class="score-val" style="color:var(--accent-purple)">A+</div>
+      <div class="score-rec">強力買進</div>
+    </div>
+    <div class="score-card" style="border-color:rgba(59,130,246,.3)">
+      <div class="score-ticker">COHR</div>
+      <div class="score-val" style="color:var(--accent-blue)">A</div>
+      <div class="score-rec">強力買進</div>
+    </div>
+    <div class="score-card" style="border-color:rgba(139,92,246,.3)">
+      <div class="score-ticker">MRVL</div>
+      <div class="score-val" style="color:var(--accent-purple)">A</div>
+      <div class="score-rec">積極買進</div>
+    </div>
+    <div class="score-card">
+      <div class="score-ticker">CRDO</div>
+      <div class="score-val" style="color:var(--accent-blue)">B+</div>
+      <div class="score-rec">積極買進</div>
+    </div>
+    <div class="score-card">
+      <div class="score-ticker">CIEN</div>
+      <div class="score-val" style="color:var(--accent-amber)">B+</div>
+      <div class="score-rec">買進</div>
+    </div>
+    <div class="score-card">
+      <div class="score-ticker">ALAB</div>
+      <div class="score-val" style="color:var(--accent-blue)">B</div>
+      <div class="score-rec">積極買進</div>
+    </div>
+    <div class="score-card">
+      <div class="score-ticker">AAOI</div>
+      <div class="score-val" style="color:var(--accent-coral)">B−</div>
+      <div class="score-rec">投機買進</div>
+    </div>
+  </div>
+
+  <div class="risk-section">
+    <div class="sec-title" style="margin-top:8px">風險評估（低 → 高）</div>
+    <div class="risk-row"><div class="risk-label">AVGO</div><div class="risk-track"><div class="risk-fill" style="background:var(--accent-teal)" data-w="25"></div></div><div class="risk-text" style="font-size:11px;color:var(--muted)">低</div></div>
+    <div class="risk-row"><div class="risk-label">CIEN</div><div class="risk-track"><div class="risk-fill" style="background:var(--accent-teal)" data-w="30"></div></div><div class="risk-text" style="font-size:11px;color:var(--muted)">低</div></div>
+    <div class="risk-row"><div class="risk-label">LITE</div><div class="risk-track"><div class="risk-fill" style="background:var(--accent-blue)" data-w="40"></div></div><div class="risk-text" style="font-size:11px;color:var(--muted)">中低</div></div>
+    <div class="risk-row"><div class="risk-label">COHR</div><div class="risk-track"><div class="risk-fill" style="background:var(--accent-blue)" data-w="42"></div></div><div class="risk-text" style="font-size:11px;color:var(--muted)">中低</div></div>
+    <div class="risk-row"><div class="risk-label">MRVL</div><div class="risk-track"><div class="risk-fill" style="background:var(--accent-amber)" data-w="48"></div></div><div class="risk-text" style="font-size:11px;color:var(--muted)">中</div></div>
+    <div class="risk-row"><div class="risk-label">CRDO</div><div class="risk-track"><div class="risk-fill" style="background:var(--accent-amber)" data-w="60"></div></div><div class="risk-text" style="font-size:11px;color:var(--muted)">中高</div></div>
+    <div class="risk-row"><div class="risk-label">ALAB</div><div class="risk-track"><div class="risk-fill" style="background:var(--accent-coral)" data-w="70"></div></div><div class="risk-text" style="font-size:11px;color:var(--muted)">高</div></div>
+    <div class="risk-row"><div class="risk-label">AAOI</div><div class="risk-track"><div class="risk-fill" style="background:var(--accent-red)" data-w="85"></div></div><div class="risk-text" style="font-size:11px;color:var(--muted)">高</div></div>
+  </div>
+
+  <div class="sec-title" style="margin-top:4px">配置策略建議</div>
+  <div class="alloc-grid">
+    <div class="alloc-card" style="border-color:rgba(20,184,166,.25)">
+      <div class="alloc-pct" style="color:var(--accent-teal)">50–60%</div>
+      <div class="alloc-title">核心持股</div>
+      <div class="alloc-stocks">AVGO · LITE · COHR<br><span style="font-size:10px;color:var(--muted);margin-top:4px;display:block">穩定護城河、NVIDIA 背書、技術壟斷</span></div>
+    </div>
+    <div class="alloc-card" style="border-color:rgba(59,130,246,.25)">
+      <div class="alloc-pct" style="color:var(--accent-blue)">30–35%</div>
+      <div class="alloc-title">成長衛星</div>
+      <div class="alloc-stocks">MRVL · CRDO · CIEN<br><span style="font-size:10px;color:var(--muted);margin-top:4px;display:block">高成長、多元應用、訂單能見度高</span></div>
+    </div>
+    <div class="alloc-card" style="border-color:rgba(249,115,22,.25)">
+      <div class="alloc-pct" style="color:var(--accent-coral)">5–15%</div>
+      <div class="alloc-title">高風險機會</div>
+      <div class="alloc-stocks">ALAB · AAOI<br><span style="font-size:10px;color:var(--muted);margin-top:4px;display:block">爆發性成長但波動大，適合積極型投資人</span></div>
+    </div>
+  </div>
+
+  <div class="catalyst-grid">
+    <div class="catalyst-box" style="border-color:rgba(20,184,166,.2)">
+      <div class="catalyst-head" style="color:var(--accent-teal)">共同催化劑 ▲</div>
+      <ul class="catalyst-list catalyst-up">
+        <li>AI 資料中心超大規模資本支出持續</li>
+        <li>800G → 1.6T 大規模遷移加速</li>
+        <li>CPO 技術商業化提前</li>
+        <li>NVIDIA / 超大規模業者策略投資持續</li>
+        <li>2027 年以後 3.2T 技術演進開始布局</li>
+      </ul>
+    </div>
+    <div class="catalyst-box" style="border-color:rgba(239,68,68,.2)">
+      <div class="catalyst-head" style="color:var(--accent-red)">共同風險 ▼</div>
+      <ul class="catalyst-list catalyst-dn">
+        <li>AI 資本支出週期反轉</li>
+        <li>關稅 / 地緣政治供應鏈衝擊</li>
+        <li>技術路線切換（CPO 提前普及壓縮傳統模組）</li>
+        <li>客戶集中度過高，單一客戶放緩即衝擊業績</li>
+        <li>估值偏高，市場情緒逆轉放大回撤</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="disclaimer">
+  ⚠️ 本頁面內容僅供參考，不構成投資建議。光通訊板塊波動劇烈，請依個人風險承受能力審慎配置。數據來源：各公司法說會、Seeking Alpha、Zacks、公開研究報告（截至 2026年5月）。
+</div>
+
+<script>
+const stocks={
+  LITE:{name:'Lumentum Holdings',layer:'光學元件 / 雷射',color:'var(--accent-teal)',
+    where:'晶片內雷射光源（最上游）',
+    what:'生產 200G/lane EML 雷射晶片，是 1.6T 光模組的核心發光元件。簡單說：沒有 LITE 的雷射，就沒有光訊號。NVIDIA 宣布 40 億美元投資，CEO 稱 2026 為雷射晶片爆發年。',
+    who:'NVIDIA（Spectrum-X 平台）、AWS、Meta',
+    vs:'COHR 也做雷射，但 LITE 是唯一量產 200G/lane EML 的廠商，在最關鍵規格點佔獨家地位。',
+    apps:['AI資料中心互連','次世代CPO光源','電信長距','海底電纜']},
+  COHR:{name:'Coherent Corp',layer:'光學元件 / 雷射',color:'var(--accent-blue)',
+    where:'晶片→模組→長距全棧光電',
+    what:'垂直整合的光電龍頭，從原材料→雷射晶片→光模組全部自製。資料中心市占約 25%，訂單出貨比超 4:1。與 NVIDIA 深度合作 CPO 並獲策略投資。',
+    who:'NVIDIA（CPO策略投資）、Google、Meta、主要電信商',
+    vs:'LITE 是純雷射晶片；COHR 更像「光學代工廠」，規模更大但較少技術壟斷點。',
+    apps:['AI資料中心光模組','CPO共封裝','電信長距','矽光子']},
+  AVGO:{name:'Broadcom Inc.',layer:'半導體 IC',color:'var(--accent-purple)',
+    where:'GPU替代品（自訂XPU）+ 光網路交換',
+    what:'為 Google、Meta 等超大規模業者設計自訂 AI 加速晶片（XPU），同時是 CPO 技術最積極倡導者。AI 訂單積壓高達 730 億美元，AI 半導體 Q1 FY26 單季達 84 億美元。',
+    who:'Google（TPU，合約至2031）、Meta（MTIA）、OpenAI、ByteDance',
+    vs:'MRVL 也做 XPU，但 AVGO 客戶鎖定更深、市占更高（55-60% vs MRVL 15%），且有 VMware 軟體現金流護城河。',
+    apps:['AI訓練XPU晶片','AI推論','CPO光網路交換','企業網路']},
+  MRVL:{name:'Marvell Technology',layer:'半導體 IC',color:'var(--accent-purple)',
+    where:'電→光轉換的訊號處理核心',
+    what:'PAM4 DSP 市場無可爭議龍頭，負責把電訊號轉換為光訊號，是所有高速光互連的大腦。1.6T DSP 已量產，NVIDIA 20 億美元投資背書矽光子路線。',
+    who:'Amazon（Trainium）、Microsoft（Maia）、Google（部分TPU）',
+    vs:'AVGO 是 XPU 自訂晶片龍頭；MRVL 在 DSP（訊號轉換IC）是絕對霸主，且在矽光子技術上積極投入。',
+    apps:['PAM4 DSP光互連','自訂XPU','矽光子Scale-up','AI網路交換']},
+  CRDO:{name:'Credo Technology',layer:'半導體 IC',color:'var(--accent-blue)',
+    where:'機架內 / 機架間短距互連',
+    what:'AEC 主動銅纜是機架間互連的事實標準，可靠性高1000倍、功耗低50%。Q3 FY26 營收 4.07 億美元，年增 201%。同時推出 Bluebird 光DSP 進軍光學市場。',
+    who:'5大超大規模雲端業者（Amazon / Microsoft / Google / Meta / Oracle 等）',
+    vs:'CRDO 走「低功耗可靠銅纜」短距佔優；ALAB 走「晶片內部PCIe/CXL連結」，兩者應用層不同。',
+    apps:['機架間AEC電纜互連','AI伺服器連結','PCIe Retimer','光DSP新品']},
+  ALAB:{name:'Astera Labs',layer:'半導體 IC',color:'var(--accent-blue)',
+    where:'伺服器機板內部 GPU↔CPU↔記憶體',
+    what:'解決 AI 伺服器板卡層級的高速連結問題（PCIe 5.0/6.0 和 CXL），讓 GPU 與記憶體之間的頻寬不再是瓶頸。估值最貴（P/S 20x），前5大客戶佔84%。',
+    who:'Oracle、超大規模雲端業者（依賴 Broadcom 和 Oracle 生態系）',
+    vs:'CRDO 解決機架間連結；ALAB 解決機板內連結。兩者互補。ALAB 估值最高，客戶集中風險也最高。',
+    apps:['AI伺服器PCIe連結','CXL記憶體擴展','GPU/XPU板卡連結']},
+  CIEN:{name:'Ciena Corporation',layer:'系統 / 設備',color:'var(--accent-amber)',
+    where:'資料中心之間 / 電信骨幹（100km+）',
+    what:'提供完整高速長距光傳輸系統，WaveLogic 6 DSP 是業界最高頻譜效率。2025年收購 Nubis 拓展短距DC光學。Q1 FY26 積壓訂單約 70 億美元（+45%）。',
+    who:'AT&T、Verizon、Lumen、超大規模雲端（DCI 連結）',
+    vs:'其他七股都在資料中心「內部」；CIEN 是唯一主做「資料中心之間」長距傳輸的，互補非競爭。',
+    apps:['電信長距骨幹','海底電纜','資料中心互連DCI','都會光網路']},
+  AAOI:{name:'Applied Optoelectronics',layer:'光模組（中游整合）',color:'var(--accent-coral)',
+    where:'雷射晶片→整合成可插拔光模組',
+    what:'垂直整合的光模組廠商，深度綁定 Microsoft，主打 LPO（線性可插拔光學）低成本方案。Q4 2025 創歷史新高，多筆累積超2億美元大訂單確認。2026 目標年營收超 10 億美元。',
+    who:'Microsoft（主要）、其他超大規模雲端業者',
+    vs:'LITE/COHR 賣零件（雷射晶片）給 AAOI 等模組廠；AAOI 是組裝整合者，技術深度不及上游但依靠 Microsoft 大訂單驅動。',
+    apps:['AI資料中心1.6T光模組','800G光模組','LPO低功耗方案','Microsoft雲端']}
+};
+
+function showDetail(t){
+  const s=stocks[t];
+  document.getElementById('detail-panel').innerHTML=`
+    <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap">
+      <span style="font-family:'Space Mono',monospace;font-size:22px;font-weight:700;color:#fff">${t}</span>
+      <span style="font-size:12px;color:var(--muted)">${s.name}</span>
+      <span style="font-size:10px;padding:3px 10px;border-radius:99px;border:1px solid;border-color:${s.color};color:${s.color}">${s.layer}</span>
+    </div>
+    <div class="detail-grid">
+      <div class="detail-cell"><div class="detail-cell-label">在架構中的位置</div><div class="detail-cell-val">${s.where}</div></div>
+      <div class="detail-cell"><div class="detail-cell-label">主要客戶</div><div class="detail-cell-val">${s.who}</div></div>
+      <div class="detail-cell full"><div class="detail-cell-label">做什麼</div><div class="detail-cell-val">${s.what}</div></div>
+      <div class="detail-cell full"><div class="detail-cell-label">與其他股的差異</div><div class="detail-cell-val">${s.vs}</div></div>
+    </div>
+    <div class="app-tags">${s.apps.map(a=>`<span class="app-tag">${a}</span>`).join('')}</div>
+  `;
+}
+
+function showTab(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  event.target.classList.add('on');
+  animateBars();
+}
+
+function scrollToStock(t){ showTab('chain'); setTimeout(()=>showDetail(t),50); }
+
+function animateBars(){
+  setTimeout(()=>{
+    document.querySelectorAll('[data-w]').forEach(el=>{
+      el.style.width = el.dataset.w + '%';
+    });
+  }, 100);
+}
+
+animateBars();
+</script>
+</body>
+</html>
